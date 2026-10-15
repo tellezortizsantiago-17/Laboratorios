@@ -40,6 +40,21 @@ Cada carpeta representa un laboratorio independiente desarrollado en Java. A con
 
 ---
 
+### 4. `java-laboratorio-04` (Mi Billetera Java 2.0)
+* **Descripción:** Aplicación orientada a objetos que implementa colecciones (List, Set, Map) y manejo seguro de excepciones (try-catch) para registrar ingresos, gastos y generar reportes financieros.
+* **Cómo ejecutar el programa:**
+  1. Abra la carpeta `java-laboratorio-04/MiBilleteraJava` en su entorno de desarrollo (Visual Studio Code).
+  2. Abra una terminal en esa ubicación y compile los archivos ejecutando:
+     ```bash
+     javac Movimiento.java Billetera.java Main.java
+     ```
+  3. Ejecute el programa con el siguiente comando:
+     ```bash
+     java Main
+     ```
+
+---
+
 ### 👤 Autor
 * **Aprendiz:** Kevin Santiago Tellez Ortiz
 * **Programa:** Análisis y Desarrollo de Software (ADSO)
