@@ -99,3 +99,98 @@ a:focus-visible {
         align-items: flex-start;
     }
 }
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-block: 1rem;
+}
+.form-field label {
+    font-weight: 700;
+}
+.form-field input, .form-field textarea {
+    width: 100%;
+    max-width: 36rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #64748b;
+    border-radius: 0.6rem;
+    font: inherit;
+    color: #0f172a;
+    background: #fff;
+}
+.form-field input:focus-visible, .form-field textarea:focus-visible {
+    outline: 3px solid #0ea5e9;
+    outline-offset: 2px;
+}
+.form-field .field-error {
+    border: 2px solid #b91c1c;
+}
+.field-error-message, .form-summary {
+    color: #b91c1c;
+    font-weight: 600;
+}
+.form-summary {
+    border-left: 4px solid #b91c1c;
+    padding: 0.75rem;
+    background: #fee2e2;
+}
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.1rem;
+}
+.secondary-link {
+    display: inline-flex;
+    padding: 0.6rem 0.8rem;
+    text-decoration: underline;
+    color: inherit;
+}
+.danger-button {
+    cursor: pointer;
+    padding: 0.65rem 0.95rem;
+    border: 2px solid #991b1b;
+    border-radius: 0.6rem;
+    color: #fff;
+    background: #991b1b;
+    font: inherit;
+    font-weight: 700;
+}
+.danger-button:hover {
+    background: #7f1d1d;
+}
+.danger-button:focus-visible, .secondary-link:focus-visible {
+    outline: 3px solid #0ea5e9;
+    outline-offset: 3px;
+}
+.delete-form {
+    margin-top: 0.9rem;
+}
+.success-message {
+    padding: 0.8rem 1rem;
+    border-left: 4px solid #15803d;
+    background: #dcfce7;
+    color: #14532d;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
