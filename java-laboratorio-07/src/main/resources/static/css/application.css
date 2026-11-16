@@ -194,3 +194,29 @@ a:focus-visible {
     white-space: nowrap;
     border: 0;
 }
+.request-card {
+    padding: 1rem;
+    margin-block: 1rem;
+    border: 1px solid #64748b;
+    border-radius: 0.7rem;
+}
+
+.request-card .form-actions form {
+    margin: 0;
+}
+
+.form-field select {
+    width: 100%;
+    max-width: 36rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #64748b;
+    border-radius: 0.6rem;
+    font: inherit;
+    background: #fff;
+    color: #0f172a;
+}
+
+.form-field select:focus-visible {
+    outline: 3px solid #0ea5e9;
+    outline-offset: 2px;
+}

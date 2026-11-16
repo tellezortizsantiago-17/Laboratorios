@@ -3,24 +3,31 @@ package com.example.petmach_tab.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.petmach_tab.dto.PetForm;
+import com.example.petmach_tab.exception.BusinessRuleException;
 import com.example.petmach_tab.model.Pet;
 import com.example.petmach_tab.repository.PetRepository;
+import com.example.petmach_tab.repository.SupportRequestRepository;
 
 @Service
 public class PetService {
 
     private final PetRepository petRepository;
+    private final SupportRequestRepository supportRequestRepository;
 
-    public PetService(PetRepository petRepository) {
+    public PetService(
+        PetRepository petRepository,
+        SupportRequestRepository supportRequestRepository
+    ) {
         this.petRepository = petRepository;
+        this.supportRequestRepository = supportRequestRepository;
     }
 
     public List<Pet> findAll() {
-        return petRepository.findAll(Sort.by("id").ascending());
+        return petRepository.findAll();
     }
 
     public Optional<Pet> findById(long id) {
@@ -43,20 +50,26 @@ public class PetService {
     public Optional<Pet> update(long id, PetForm form) {
         validateForm(form);
 
-        return petRepository.findById(id).map(pet -> {
-            pet.updateDetails(
+        return petRepository.findById(id).map(existing -> {
+            existing.updateDetails(
                 form.getName().strip(),
                 form.getSpecies().strip(),
                 form.getAge(),
                 normalizeDescription(form.getDescription())
             );
-
-            return petRepository.save(pet);
+            return petRepository.save(existing);
         });
     }
 
+    @Transactional
     public boolean delete(long id) {
         return petRepository.findById(id).map(pet -> {
+            if (supportRequestRepository.existsByPet_Id(id)) {
+                throw new BusinessRuleException(
+                    "No se puede eliminar una mascota que tiene solicitudes."
+                );
+            }
+
             petRepository.delete(pet);
             return true;
         }).orElse(false);

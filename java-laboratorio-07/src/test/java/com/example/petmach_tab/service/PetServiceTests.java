@@ -18,8 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.petmach_tab.dto.PetForm;
+import com.example.petmach_tab.exception.BusinessRuleException;
 import com.example.petmach_tab.model.Pet;
 import com.example.petmach_tab.repository.PetRepository;
+import com.example.petmach_tab.repository.SupportRequestRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PetServiceTests {
@@ -27,11 +29,14 @@ class PetServiceTests {
     @Mock
     private PetRepository repository;
 
+    @Mock
+    private SupportRequestRepository requestRepository;
+
     private PetService service;
 
     @BeforeEach
     void setUp() {
-        service = new PetService(repository);
+        service = new PetService(repository, requestRepository);
     }
 
     @Test
@@ -93,9 +98,21 @@ class PetServiceTests {
     void shouldDeleteExistingPet() {
         Pet existing = new Pet("Luna", "Dog", 3, null);
         when(repository.findById(8L)).thenReturn(Optional.of(existing));
+        when(requestRepository.existsByPet_Id(8L)).thenReturn(false);
 
         assertTrue(service.delete(8L));
         verify(repository).delete(existing);
+    }
+
+    @Test
+    void shouldRejectPetDeletionWhenRequestsExist() {
+        Pet existing = new Pet("Luna", "Dog", 3, null);
+        when(repository.findById(8L)).thenReturn(Optional.of(existing));
+        when(requestRepository.existsByPet_Id(8L)).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () -> service.delete(8L));
+
+        verify(repository, never()).delete(any(Pet.class));
     }
 
     private PetForm newForm(String name, String species, Integer age) {

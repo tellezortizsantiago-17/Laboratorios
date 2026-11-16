@@ -26,6 +26,9 @@
                 <a class="button-link"
                    th:href="@{/pets/{id}/edit(id=${pet.id})}">Editar</a>
                 <a class="secondary-link" th:href="@{/pets}">Volver al catálogo</a>
+                <a class="button-link"
+                   th:href="@{/pets/{id}/requests(id=${pet.id})}">Ver solicitudes de apoyo
+                </a>
             </div>
 
             <form class="delete-form" method="post"
