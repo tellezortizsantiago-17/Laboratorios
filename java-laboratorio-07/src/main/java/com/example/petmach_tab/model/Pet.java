@@ -1,21 +1,55 @@
 package com.example.petmach_tab.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "pets")
 public class Pet {
 
-    private final long id;
-    private final String name;
-    private final String species;
-    private final int age;
-    private final String description;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Pet(long id, String name, String species, int age, String description) {
-        this.id = id;
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(nullable = false, length = 80)
+    private String species;
+
+    @Column(nullable = false)
+    private int age;
+
+    @Column(length = 1000)
+    private String description;
+
+    protected Pet() {
+    }
+
+    public Pet(String name, String species, int age, String description) {
         this.name = name;
         this.species = species;
         this.age = age;
         this.description = description;
     }
 
-    public long getId() {
+    public void updateDetails(
+        String name,
+        String species,
+        int age,
+        String description
+    ) {
+        this.name = name;
+        this.species = species;
+        this.age = age;
+        this.description = description;
+    }
+
+    public Long getId() {
         return id;
     }
 

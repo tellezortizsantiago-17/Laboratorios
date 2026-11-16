@@ -2,22 +2,25 @@ package com.example.petmach_tab.service;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import com.example.petmach_tab.dto.PetForm;
 import com.example.petmach_tab.model.Pet;
-import com.example.petmach_tab.repository.InMemoryPetRepository;
+import com.example.petmach_tab.repository.PetRepository;
 
 @Service
 public class PetService {
 
-    private final InMemoryPetRepository petRepository;
+    private final PetRepository petRepository;
 
-    public PetService(InMemoryPetRepository petRepository) {
+    public PetService(PetRepository petRepository) {
         this.petRepository = petRepository;
     }
 
     public List<Pet> findAll() {
-        return petRepository.findAll();
+        return petRepository.findAll(Sort.by("id").ascending());
     }
 
     public Optional<Pet> findById(long id) {
@@ -27,28 +30,36 @@ public class PetService {
     public Pet create(PetForm form) {
         validateForm(form);
 
-        return petRepository.create(
+        Pet pet = new Pet(
             form.getName().strip(),
             form.getSpecies().strip(),
             form.getAge(),
             normalizeDescription(form.getDescription())
         );
+
+        return petRepository.save(pet);
     }
 
     public Optional<Pet> update(long id, PetForm form) {
         validateForm(form);
 
-        return petRepository.update(
-            id,
-            form.getName().strip(),
-            form.getSpecies().strip(),
-            form.getAge(),
-            normalizeDescription(form.getDescription())
-        );
+        return petRepository.findById(id).map(pet -> {
+            pet.updateDetails(
+                form.getName().strip(),
+                form.getSpecies().strip(),
+                form.getAge(),
+                normalizeDescription(form.getDescription())
+            );
+
+            return petRepository.save(pet);
+        });
     }
 
     public boolean delete(long id) {
-        return petRepository.delete(id);
+        return petRepository.findById(id).map(pet -> {
+            petRepository.delete(pet);
+            return true;
+        }).orElse(false);
     }
 
     private void validateForm(PetForm form) {

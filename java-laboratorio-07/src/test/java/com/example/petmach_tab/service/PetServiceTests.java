@@ -1,75 +1,101 @@
 package com.example.petmach_tab.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.example.petmach_tab.dto.PetForm;
-import com.example.petmach_tab.repository.InMemoryPetRepository;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.petmach_tab.dto.PetForm;
+import com.example.petmach_tab.model.Pet;
+import com.example.petmach_tab.repository.PetRepository;
+
+@ExtendWith(MockitoExtension.class)
 class PetServiceTests {
+
+    @Mock
+    private PetRepository repository;
 
     private PetService service;
 
     @BeforeEach
     void setUp() {
-        service = new PetService(new InMemoryPetRepository());
+        service = new PetService(repository);
     }
 
     @Test
-    void shouldReturnAvailablePets() {
-        assertEquals(3, service.findAll().size());
-    }
+    void shouldNormalizeFieldsBeforeSaving() {
+        PetForm form = newForm("  Kira  ", "  Dog  ", 4);
+        form.setDescription("  Very playful.  ");
+        when(repository.save(any(Pet.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
-    @Test
-    void shouldReturnEmptyWhenPetDoesNotExist() {
-        assertTrue(service.findById(999L).isEmpty());
-    }
-
-    @Test
-    void shouldNormalizeNameAndSpeciesWhenCreatingPet() {
-        PetForm form = newForm("  Kira  ", "  Perro  ", 4);
-        form.setDescription("  Juguetona  ");
-
-        var created = service.create(form);
+        Pet created = service.create(form);
 
         assertEquals("Kira", created.getName());
-        assertEquals("Perro", created.getSpecies());
-        assertEquals("Juguetona", created.getDescription());
+        assertEquals("Dog", created.getSpecies());
+        assertEquals("Very playful.", created.getDescription());
+        verify(repository).save(any(Pet.class));
     }
 
     @Test
-    void shouldRejectNegativeAgeWhenServiceIsCalledDirectly() {
-        PetForm form = newForm("Kira", "Perro", -1);
+    void shouldRejectInvalidAgeBeforeCallingRepository() {
+        PetForm form = newForm("Kira", "Dog", -1);
 
         assertThrows(IllegalArgumentException.class, () -> service.create(form));
-        assertEquals(3, service.findAll().size());
+
+        verify(repository, never()).save(any(Pet.class));
     }
 
     @Test
-    void shouldRejectBlankNameWhenServiceIsCalledDirectly() {
-        PetForm form = newForm("   ", "Perro", 2);
-
-        assertThrows(IllegalArgumentException.class, () -> service.create(form));
-    }
-
-    @Test
-    void shouldUpdateExistingPet() {
-        PetForm form = newForm("Milo", "Gato", 5);
-
-        var updated = service.update(2L, form);
-
-        assertTrue(updated.isPresent());
-        assertEquals(5, service.findById(2L).orElseThrow().getAge());
-    }
-
-    @Test
-    void shouldNotCreatePetWhenUpdateTargetDoesNotExist() {
-        PetForm form = newForm("Desconocido", "Gato", 5);
+    void shouldReturnEmptyWhenUpdatingMissingPet() {
+        PetForm form = newForm("Kira", "Dog", 5);
+        when(repository.findById(999L)).thenReturn(Optional.empty());
 
         assertTrue(service.update(999L, form).isEmpty());
-        assertEquals(3, service.findAll().size());
+        verify(repository, never()).save(any(Pet.class));
+    }
+
+    @Test
+    void shouldUpdateExistingPetWithoutCreatingAnotherOne() {
+        PetForm form = newForm("Milo", "Cat", 5);
+        Pet existing = new Pet("Milo", "Cat", 2, null);
+        when(repository.findById(7L)).thenReturn(Optional.of(existing));
+        when(repository.save(any(Pet.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Pet updated = service.update(7L, form).orElseThrow();
+
+        assertEquals(5, updated.getAge());
+        verify(repository).save(existing);
+    }
+
+    @Test
+    void shouldReturnFalseWhenDeletingMissingPet() {
+        when(repository.findById(999L)).thenReturn(Optional.empty());
+
+        assertFalse(service.delete(999L));
+        verify(repository, never()).delete(any(Pet.class));
+    }
+
+    @Test
+    void shouldDeleteExistingPet() {
+        Pet existing = new Pet("Luna", "Dog", 3, null);
+        when(repository.findById(8L)).thenReturn(Optional.of(existing));
+
+        assertTrue(service.delete(8L));
+        verify(repository).delete(existing);
     }
 
     private PetForm newForm(String name, String species, Integer age) {
