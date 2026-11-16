@@ -1,5 +1,7 @@
 package com.example.petmach_tab.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +34,8 @@ class SupportRequestControllerIntegrationTests {
 
     @Test
     void shouldReturnNotFoundForUnknownPet() throws Exception {
-        mockMvc.perform(get("/pets/{petId}/requests", Long.MAX_VALUE))
+        mockMvc.perform(get("/pets/{petId}/requests", Long.MAX_VALUE)
+                .with(user("ana@example.com").roles("USER")))
             .andExpect(status().isNotFound())
             .andExpect(view().name("errors/status"));
     }
@@ -44,6 +47,8 @@ class SupportRequestControllerIntegrationTests {
         );
 
         mockMvc.perform(post("/pets/{petId}/requests", pet.getId())
+                .with(user("ana@example.com").roles("USER"))
+                .with(csrf())
                 .param("type", "")
                 .param("description", ""))
             .andExpect(status().isOk())
@@ -64,7 +69,9 @@ class SupportRequestControllerIntegrationTests {
         mockMvc.perform(post(
                 "/pets/{petId}/requests/{requestId}/complete",
                 pet.getId(), saved.getId()
-            ))
+            )
+                .with(user("admin@example.com").roles("ADMIN"))
+                .with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(view().name("errors/status"));
     }

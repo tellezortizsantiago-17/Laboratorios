@@ -53,7 +53,7 @@
                         <span th:text="${request.status.label}">Abierta</span>
                     </p>
 
-                    <div class="form-actions" th:if="${request.open}">
+                    <div class="form-actions" th:if="${isAdmin and request.open}">
                         <form method="post"
                               th:action="@{/pets/{petId}/requests/{requestId}/complete(petId=${pet.id},requestId=${request.id})}">
                             <button type="submit" class="button-link">

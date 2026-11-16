@@ -10,7 +10,7 @@
                 <h1>Catálogo de mascotas</h1>
                 <p class="page-intro">Consulta y administra las mascotas del catálogo.</p>
             </div>
-            <a class="button-link" th:href="@{/pets/new}">
+            <a class="button-link" th:if="${isAdmin}" th:href="@{/pets/new}">
                 Registrar mascota
             </a>
         </header>
@@ -22,7 +22,7 @@
         <section class="content-panel" th:if="${pets.isEmpty()}">
             <h2>El catálogo está vacío</h2>
             <p>Registra una mascota para comenzar.</p>
-            <a class="button-link" th:href="@{/pets/new}">Registrar mascota</a>
+            <a class="button-link" th:if="${isAdmin}" th:href="@{/pets/new}">Registrar mascota</a>
         </section>
 
         <section class="pet-grid" aria-label="Lista de mascotas"
@@ -36,10 +36,12 @@
                     <a class="button-link"
                        th:href="@{/pets/{id}(id=${pet.id})}">Ver detalle</a>
                     <a class="secondary-link"
+                       th:if="${isAdmin}"
                        th:href="@{/pets/{id}/edit(id=${pet.id})}">Editar</a>
                 </div>
 
                 <form method="post" class="delete-form"
+                      th:if="${isAdmin}"
                       th:action="@{/pets/{id}/delete(id=${pet.id})}">
                     <button type="submit" class="danger-button">
                         Eliminar
